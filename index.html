@@ -1,3 +1,6 @@
+Here's the complete HTML file with the full working JavaScript:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -572,7 +575,6 @@
                 explosion.style.top = (y - 10) + 'px';
                 document.body.appendChild(explosion);
                 
-                // Use requestAnimationFrame for removal
                 requestAnimationFrame(() => {
                     setTimeout(() => explosion.remove(), 400);
                 });
@@ -606,7 +608,8 @@
             }
 
             function resetCombo() {
-                if (state.coombo = state.combo;
+            if (state.combo > state.maxCombo) {
+                    state.maxCombo = state.combo;
                     dom.maxCombo.textContent = `🔥 Max: ${state.maxCombo}`;
                 }
                 state.combo = 0;
@@ -700,9 +703,11 @@
             function handleClick(e) {
                 if (!state.gameActive) return;
 
+                e.preventDefault();
+                
                 // Get click coordinates
-                const x = e.clientX || (e.touches && e.touches[0].clientX);
-                const y = e.clientY || (e.touches && e.touches[0].clientY);
+                const x = e.clientX || (e.touches && e.touches[0]?.clientX);
+                const y = e.clientY || (e.touches && e.touches[0]?.clientY);
                 
                 // Calculate points
                 let points = state.megaActive ? 5 : 1;
@@ -725,7 +730,7 @@
                 // Visual effects
                 if (x && y) {
                     createExplosion(x, y);
-                    createFloatingText(x, y - 20, `+${points}`, points > 10 ? '#ff0' : '#ffd966');
+                    createFloatingText(x, y - 30, `+${points}`, points > 10 ? '#ff0' : '#ffd966');
                 }
                 
                 // Haptic feedback (if supported)
@@ -776,6 +781,7 @@
 
             // ========== RESET GAME ==========
             function resetGame() {
+                // Reset state
                 state = {
                     ...state,
                     score: 0,
@@ -794,7 +800,7 @@
                     if (timer) clearInterval(timer);
                 });
                 
-                // Update UI
+                // Reset UI
                 dom.score.textContent = '0';
                 dom.combo.textContent = '0';
                 dom.comboFill.style.width = '0%';
@@ -834,7 +840,7 @@
                     navigator.share({ title: 'Aarav Clicker', text });
                 } else {
                     navigator.clipboard.writeText(text).then(() => {
-                        alert('Score copied to clipboard!');
+                        createFloatingText(window.innerWidth/2, window.innerHeight/2, '📋 Copied!', '#00ff00');
                     });
                 }
             });
@@ -856,7 +862,7 @@
             dom.clickBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 handleClick(e);
-            });
+            }, { passive: false });
 
             dom.doublePoints.addEventListener('click', activateDouble);
             dom.timeBonus.addEventListener('click', activateTimeBonus);
@@ -867,7 +873,7 @@
                 el.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     el.click();
-                });
+                }, { passive: false });
             });
 
             // Initialize audio context on first interaction
@@ -889,3 +895,4 @@
     </script>
 </body>
 </html>
+            
