@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AARAV · ULTIMATE CLICKER 🏆</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* LIGHT MODE */
+        body.light {
+            background: radial-gradient(circle at center, #f0f9ff, #e0f2fe);
+            color: #0f172a;
+        }
+
+        body.light .game-container {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light .stat-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        body.light .stat-label {
+            color: #0284c7;
+        }
+
+        /* DARK MODE (DEFAULT) */
+        body.dark {
+            background: radial-gradient(circle at center, #0f172a, #020617);
+            color: white;
+        }
+
+        body.dark .game-container {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 65, 108, 0.3);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 255, 255, 0.2);
+        }
+
+        body.dark .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark .stat-label {
+            color: #a8d8ff;
+        }
+
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem 1.5rem;
+            backdrop-filter: blur(10px);
+            border-radius: 60px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        /* THEME TOGGLE */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 3000;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 3.2rem);
+            background: linear-gradient(135deg, #fff, #ffd966);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .timer-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            display: inline-block;
+            margin: 1rem auto;
+            border: 2px solid #ffd966;
+        }
+
+        #timer {
+            font-size: clamp(2rem, 6vw, 2.5rem);
+            font-weight: 800;
+            color: #ffd966;
+            transition: color 0.3s;
+        }
+
+        .timer-warning {
+            color: #ff4444 !important;
+            text-shadow: 0 0 20px red !important;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            border-radius: 40px;
+            padding: 1rem 0.5rem;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s;
+        }
+
+        .stat-card.special {
+            background: linear-gradient(145deg, #ffd700, #ffa500) !important;
+        }
+
+        .stat-card.special .stat-value {
+            -webkit-text-fill-color: white;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: clamp(1.8rem, 5vw, 2.2rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a8d8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .combo-container {
+            margin: 1rem 0;
+        }
+
+        .combo-meter {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .combo-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff416c, #ff8c42, #ffd966);
+            transition: width 0.3s;
+            border-radius: 20px;
+        }
+
+        .powerups-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .powerup {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ff416c;
+            border-radius: 30px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .powerup.active {
+            opacity: 1;
+            background: linear-gradient(145deg, #ff416c, #ff4b2b);
+            border-color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 75, 43, 0.5);
+        }
+
+        .powerup:active {
+            transform: scale(0.95);
+        }
+
+        .powerup.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .powerup-timer {
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .click-btn {
+            font-size: clamp(1.8rem, 7vw, 2.2rem);
+            padding: 1.2rem 2rem;
+            width: 100%;
+            max-width: 350px;
+            border: none;
+            border-radius: 120px;
+            background: linear-gradient(145deg, #ff416c, #ff4b2b, #ff8c42);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(255, 65, 108, 0.5);
+            transition: all 0.1s;
+            margin: 1.5rem auto 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .click-btn:active {
+            transform: scale(0.95);
+        }
+
+        .click-btn.powered {
+            box-shadow: 0 0 50px #ffd966, 0 20px 40px rgba(255, 65, 108, 0.5);
+        }
+
+        .share-section {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .share-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .share-btn:active {
+            transform: scale(1.2);
+        }
+
+        .explosion {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: explode 0.7s ease-out forwards;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; filter: blur(0px); }
+            50% { transform: scale(20); opacity: 0.8; filter: blur(5px); }
+            100% { transform: scale(30); opacity: 0; filter: blur(15px); }
+        }
+
+        .floating-text {
+            position: fixed;
+            color: #ffd966;
+            font-size: 2rem;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 1001;
+            text-shadow: 0 0 10px orange;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+
+        .game-over-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 70px;
+            border: 3px solid #ff416c;
+            box-shadow: 0 0 100px rgba(255, 65, 108, 0.5);
+            z-index: 2000;
+            text-align: center;
+            animation: popIn 0.4s ease;
+            min-width: 300px;
+            color: white;
+        }
+
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1999;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="dark">
+
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<div class="game-container">
+    <h1>AARAV'S ⚡<br>ULTIMATE CLICKER</h1>
+
+    <div class="timer-card">
+        <div id="timer">30</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-value" id="score">0</div>
+        </div>
+        <div class="stat-card" id="comboCard">
+            <div class="stat-label">COMBO</div>
+            <div class="stat-value" id="combo">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">BEST</div>
+            <div class="stat-value" id="highscore">0</div>
+        </div>
+    </div>
+
+    <div class="combo-container">
+        <div class="combo-meter">
+            <div class="combo-fill" id="comboFill"></div>
+        </div>
+        <div id="maxCombo">🔥 Max: 0</div>
+    </div>
+
+    <div class="powerups-container">
+        <div class="powerup" id="doublePoints">
+            <span>⚡</span> 2X <span class="powerup-timer" id="doubleTimer"></span>
+        </div>
+        <div class="powerup" id="timeBonus">
+            <span>⏰</span> +3s <span class="powerup-timer" id="timeTimer"></span>
+        </div>
+        <div class="powerup" id="megaClick">
+            <span>💥</span> MEGA <span class="powerup-timer" id="megaTimer"></span>
+        </div>
+    </div>
+
+    <button class="click-btn" id="clickBtn">
+        <span>🔥</span> CLICK! <span>⚡</span>
+    </button>
+
+    <div class="share-section">
+        <button class="share-btn" id="shareScore">📤</button>
+        <button class="share-btn" id="shareTwitter">🐦</button>
+        <button class="share-btn" id="shareCopy">📋</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== GAME STATE ==========
+        let score = 0;
+        let time = 30;
+        let gameActive = true;
+        let highscore = localStorage.getItem('aaravUltimateHighscore') || 0;
+        
+        // COMBO SYSTEM
+        let combo = 0;
+        let maxCombo = 0;
+        let comboTimeout;
+        
+        // POWER-UPS
+        let doubleActive = false;
+        let doubleTimeLeft = 0;
+        let megaActive = false;
+        let megaTimeLeft = 0;
+        
+        // COLORS
+        const colors = [
+            'radial-gradient(circle, #fff, #ff0, #ff416c)',
+            'radial-gradient(circle, #fff, #0ff, #416cff)',
+            'radial-gradient(circle, #fff, #f0f, #ff6b6b)',
+            'radial-gradient(circle, #fff, #0f0, #416cff)',
+            'radial-gradient(circle, #fff, #ffa500, #ff416c)'
+        ];
+        
+        // ========== DOM ELEMENTS ==========
+        const scoreDisplay = document.getElementById('score');
+        const comboDisplay = document.getElementById('combo');
+        const comboFill = document.getElementById('comboFill');
+        const maxComboDisplay = document.getElementById('maxCombo');
+        const highscoreDisplay = document.getElementById('highscore');
+        const timerDisplay = document.getElementById('timer');
+        const clickBtn = document.getElementById('clickBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Power-up elements
+        const doublePoints = document.getElementById('doublePoints');
+        const timeBonus = document.getElementById('timeBonus');
+        const megaClick = document.getElementById('megaClick');
+        const doubleTimer = document.getElementById('doubleTimer');
+        const timeTimer = document.getElementById('timeTimer');
+        const megaTimer = document.getElementById('megaTimer');
+        
+        // ========== AUDIO SETUP ==========
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type, pitch = 800) {
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (type === 'click') {
+                    oscillator.frequency.value = pitch;
+                    gainNode.gain.value = 0.1;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } else if (type === 'powerup') {
+                    oscillator.frequency.value = 600;
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
+                    gainNode.gain.value = 0.2;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } else if (type === 'combo') {
+                    oscillator.frequency.value = 400;
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+                    gainNode.gain.value = 0.15;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } else if (type === 'gameOver') {
+                    oscillator.frequency.value = 200;
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.5);
+                    gainNode.gain.value = 0.2;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }
+                
+                oscillator.start();
+                if (audioContext.state === 'suspended') audioContext.resume();
+            } catch (e) {}
+        }
+        
+        // ========== EFFECTS ==========
+        function createExplosion(x, y) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.background = colors[Math.floor(Math.random() * colors.length)];
+            explosion.style.left = (x - 20) + 'px';
+            explosion.style.top = (y - 20) + 'px';
+            document.body.appendChild(explosion);
+            setTimeout(() => explosion.remove(), 700);
+        }
+        
+        function createFloatingText(x, y, text, color = '#ffd966') {
+            const floating = document.createElement('div');
+            floating.className = 'floating-text';
+            floating.textContent = text;
+            floating.style.color = color;
+            floating.style.left = x + 'px';
+            floating.style.top = y + 'px';
+            document.body.appendChild(floating);
+            setTimeout(() => floating.remove(), 1000);
+        }
+        
+        // ========== COMBO SYSTEM ==========
+        function updateCombo() {
+            comboDisplay.textContent = combo;
+            const comboPercent = Math.min(100, (combo / 20) * 100);
+            comboFill.style.width = comboPercent + '%';
+            
+            // Visual feedback for high combo
+            if (combo >= 10) {
+                document.getElementById('comboCard').classList.add('special');
+            } else {
+                document.getElementById('comboCard').classList.remove('special');
+            }
+        }
+        
+        function resetCombo() {
+            if (combo > maxCombo) {
+                maxCombo = combo;
+                maxComboDisplay.textContent = `🔥 Max: ${maxCombo}`;
+            }
+            combo = 0;
+            updateCombo();
+        }
+        
+        // ========== POWER-UP FUNCTIONS ==========
+        function activateDouble() {
+            if (!gameActive || doubleActive) return;
+            doubleActive = true;
+            doubleTimeLeft = 5;
+            doublePoints.classList.add('active');
+            playSound('powerup');
+            
+            const interval = setInterval(() => {
+                doubleTimeLeft--;
+                doubleTimer.textContent = doubleTimeLeft + 's';
+                
+                if (doubleTimeLeft <= 0) {
+                    doubleActive = false;
+                    doublePoints.classList.remove('active');
+                    doubleTimer.textContent = '';
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+        
+        function activateTimeBonus() {
+            if (!gameActive) return;
+            time += 3;
+            timerDisplay.textContent = time;
+            playSound('powerup');
+            createFloatingText(window.innerWidth/2, window.innerHeight/2, '+3s', '#00ff00');
+            
+            // Visual feedback
+            timeBonus.classList.add('active');
+            setTimeout(() => timeBonus.classList.remove('active'), 300);
+        }
+        
+        function activateMega() {
+            if (!gameActive || megaActive) return;
+            megaActive = true;
+            megaTimeLeft = 5;
+            megaClick.classList.add('active');
+            clickBtn.classList.add('powered');
+            playSound('powerup');
+            
+            const interval = setInterval(() => {
+                megaTimeLeft--;
+                megaTimer.textContent = megaTimeLeft + 's';
+                
+                if (megaTimeLeft <= 0) {
+                    megaActive = false;
+                    megaClick.classList.remove('active');
+                    clickBtn.classList.remove('powered');
+                    megaTimer.textContent = '';
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+        
+        // Power-up click handlers
+        doublePoints.addEventListener('click', activateDouble);
+        timeBonus.addEventListener('click', activateTimeBonus);
+        megaClick.addEventListener('click', activateMega);
+        
+        // ========== SHARE FUNCTIONS ==========
+        document.getElementById('shareScore').addEventListener('click', () => {
+            const text = `I scored ${score} points in Aarav's Ultimate Clicker! Can you beat me? 🎮`;
+            if (navigator.share) {
+                navigator.share({ title: 'Aarav Clicker', text });
+            } else {
+                alert('Share this score: ' + text);
+            }
+        });
+        
+        document.getElementById('shareTwitter').addEventListener('click', () => {
+            const text = `I scored ${score} points in Aarav's Ultimate Clicker! 🎮🏆`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
+        });
+        
+        document.getElementById('shareCopy').addEventListener('click', () => {
+            navigator.clipboard?.writeText(`I scored ${score} points in Aarav's Ultimate Clicker!`).then(() => {
+                alert('Score copied! Share it! 📋');
+            });
+        });
+        
+        // ========== THEME TOGGLE ==========
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                themeToggle.textContent = '☀️';
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                themeToggle.textContent = '🌙';
+            }
+        });
+        
+        // ========== MAIN CLICK HANDLER ==========
+        function handleClick(e) {
+            e.preventDefault();
+            
+            if (!gameActive) return;
+            
+            // Get coordinates
+            let x, y;
+            if (e.clientX || e.clientY) {
+                x = e.clientX;
+                y = e.clientY;
+            } else if (e.touches && e.touches[0]) {
+                x = e.touches[0].clientX;
+                y = e.touches[0].clientY;
+            } else {
+                const rect = clickBtn.getBoundingClientRect();
+                x = rect.left + rect.width/2;
+                y = rect.top + rect.height/2;
+            }
+            
+            // Calculate points
+            let points = 1;
+            if (doubleActive) points *= 2;
+            if (megaActive) points = 5;
+            
+            // Update score
+            score += points;
+            scoreDisplay.textContent = score;
+            
+            // Effects
+            createExplosion(x, y);
+            createFloatingText(x, y - 30, points > 1 ? `+${points}` : '+1', points > 1 ? '#ff0' : '#ffd966');
+            
+            // Sound with pitch based on combo
+            playSound('click', 800 + (combo * 20));
+            
+            // Combo system
+            combo++;
+            updateCombo();
+            
+            if (combo % 10 === 0) {
+                playSound('combo');
+                createFloatingText(x, y - 50, `${combo} COMBO!`, '#ff6b6b');
+            }
+            
+            // Clear previous combo timeout
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => resetCombo(), 1000);
+            
+            // Button feedback
+            clickBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => clickBtn.style.transform = '', 100);
+            
+            // Update highscore in real-time
+            if (score > highscore) {
+                highscore = score;
+                highscoreDisplay.textContent = highscore;
+            }
+        }
+        
+        // ========== TIMER ==========
+        const timer = setInterval(() => {
+            if (time > 0 && gameActive) {
+                time--;
+                timerDisplay.textContent = time;
+                
+                if (time <= 5) {
+                    timerDisplay.classList.add('timer-warning');
+                }
+                
+                // Random power-up spawn (every 10 seconds)
+                if (time % 10 === 0 && time > 0 && gameActive) {
+                    const rand = Math.random();
+                    if (rand < 0.33) activateDouble();
+                    else if (rand < 0.66) activateTimeBonus();
+                    else activateMega();
+                }
+                
+            } else if (time === 0 && gameActive) {
+                clearInterval(timer);
+                gameActive = false;
+                
+                // Save highscore
+                if (score > highscore) {
+                    highscore = score;
+                    localStorage.setItem('aaravUltimateHighscore', highscore);
+                }
+                
+                // Show game over
+                playSound('gameOver');
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'overlay';
+                document.body.appendChild(overlay);
+                
+                const popup = document.createElement('div');
+                popup.className = 'game-over-popup';
+                popup.innerHTML = `
+                    <h2>${score > highscore ? '🏆 NEW RECORD! 🏆' : 'GAME OVER'}</h2>
+                    <p>Score: ${score}</p>
+                    <p>Max Combo: ${maxCombo}</p>
+                    <button onclick="location.reload()">PLAY AGAIN 🔥</button>
+                `;
+                document.body.appendChild(popup);
+            }
+        }, 1000);
+        
+        // ========== EVENT LISTENERS ==========
+        clickBtn.addEventListener('click', handleClick);
+        clickBtn.addEventListener('touchstart', handleClick);
+        
+        // Initialize
+        highscoreDisplay.textContent = highscore;
+        updateCombo();
+        
+        // Resume audio on first interaction
+        document.body.addEventListener('touchstart', () => {
+            if (audioContext.state === 'suspended') audioContext.resume();
+        }, { once: true });
+        document.body.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') audioContext.resume();
+        }, { once: true });
+        
+    })();
+</script>
+
+</body>
+</html>
